@@ -173,9 +173,9 @@ def on_extras_repair_video(files):
 
 
 
-def on_extras_create_video(files, images_path, fps, create_gif):
-    if not images_path or not os.path.exists(images_path):  # Validate images_path
-        print("Error: Invalid or missing images_path")
+def on_extras_create_video(files, image_path, fps, create_gif):
+    if not image_path or not os.path.exists(image_path):  # Validate image_path
+        print("Error: Invalid or missing image_path")
         return None
 
     resultfiles = []
@@ -185,12 +185,12 @@ def on_extras_create_video(files, images_path, fps, create_gif):
     else:
         try:
             # Ensure the directory exists
-            util.sort_rename_frames(os.path.dirname(images_path))
+            util.sort_rename_frames(os.path.dirname(image_path))
             destfilename = os.path.join(
                 roop.globals.output_path, 
                 "img2video." + roop.globals.CFG.output_video_format
             )
-            ffmpeg.create_video('', destfilename, fps, images_path)
+            ffmpeg.create_video('', destfilename, fps, image_path)
 
             if os.path.isfile(destfilename):
                 resultfiles.append(destfilename)

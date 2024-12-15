@@ -173,26 +173,49 @@ def on_extras_repair_video(files):
 
 
 
-def on_extras_create_video(files, images_path,fps, create_gif):
-    if images_path is None:
+def on_extras_create_video(files, images_path, fps, create_gif):
+    if not images_path or not os.path.exists(images_path):  # Validate images_path
+        print("Error: Invalid or missing images_path")
         return None
+
     resultfiles = []
+
     if len(files) > 0 and util.is_video(files[0]) and create_gif:
         destfilename = files[0]
-    else:                     
-        util.sort_rename_frames(os.path.dirname(images_path))
-        destfilename = os.path.join(roop.globals.output_path, "img2video." + roop.globals.CFG.output_video_format)
-        ffmpeg.create_video('', destfilename, fps, images_path)
-        if os.path.isfile(destfilename):
-            resultfiles.append(destfilename)
-        else:
+    else:
+        try:
+            # Ensure the directory exists
+            util.sort_rename_frames(os.path.dirname(images_path))
+            destfilename = os.path.join(
+                roop.globals.output_path, 
+                "img2video." + roop.globals.CFG.output_video_format
+            )
+            ffmpeg.create_video('', destfilename, fps, images_path)
+
+            if os.path.isfile(destfilename):
+                resultfiles.append(destfilename)
+            else:
+                print("Error: Video file creation failed.")
+                return None
+        except Exception as e:
+            print(f"Error during video creation: {e}")
             return None
+
     if create_gif:
-        gifname = util.get_destfilename_from_path(destfilename, './output', '.gif')
-        ffmpeg.create_gif_from_video(destfilename, gifname)
-        if os.path.isfile(destfilename):
-            resultfiles.append(gifname)
+        try:
+            gifname = util.get_destfilename_from_path(destfilename, './output', '.gif')
+            ffmpeg.create_gif_from_video(destfilename, gifname)
+
+            if os.path.isfile(gifname):
+                resultfiles.append(gifname)
+            else:
+                print("Error: GIF creation failed.")
+        except Exception as e:
+            print(f"Error during GIF creation: {e}")
+            return resultfiles
+
     return resultfiles
+
     
 
 def on_extras_extract_frames(files):
